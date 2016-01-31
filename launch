@@ -1,16 +1,23 @@
 #!/bin/sh
 
 function run_master {
-  vagrant ssh salt -- sudo $@
+    vagrant ssh salt -- sudo $@
 }
 
-function run_minion {
-  vagrant ssh minion -- sudo $@
+function run_minions {
+    for num in 1 2 3
+    do
+	vagrant ssh minion$num -- sudo $@
+    done
 }
 
 function run_all {
-  run_master $@
-  run_minion $@
+    run_master $@
+    run_minions $@
+}
+
+function ssh_master {
+    vagrant ssh master
 }
 
 vagrant plugin install vagrant-hosts
@@ -22,6 +29,9 @@ run_all apt-get update
 run_all apt-get -y install salt-minion
 run_master apt-get -y install salt-master
 
+# Give some time for the minions to connect with the salt master
+sleep 5
+
 run_master salt-key -Ay
 
-vagrant ssh salt
+run_master salt "*" test.ping
