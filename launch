@@ -1,0 +1,22 @@
+#!/bin/sh
+
+function run_master {
+  vagrant ssh salt -- sudo $@
+}
+
+function run_minion {
+  vagrant ssh minion -- sudo $@
+}
+
+function run_all {
+  run_master $@
+  run_minion $@
+}
+
+vagrant up
+
+run_all add-apt-repository ppa:saltstack/salt
+run_all apt-get update
+
+run_all apt-get -y install salt-minion
+run_master apt-get -y install salt-master
