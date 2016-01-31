@@ -21,3 +21,7 @@ run_all apt-get update
 
 run_all apt-get -y install salt-minion
 run_master apt-get -y install salt-master
+
+run_master salt-key -Ay
+
+vagrant ssh salt
