@@ -1,13 +1,13 @@
 #!/bin/sh
 
 function run_master {
-    vagrant ssh salt -- sudo $@
+    vagrant ssh salt -- $@
 }
 
 function run_minions {
     for num in 1 2 3
     do
-	vagrant ssh minion$num -- sudo $@
+	vagrant ssh minion$num -- $@
     done
 }
 
@@ -23,15 +23,18 @@ function ssh_master {
 vagrant plugin install vagrant-hosts
 vagrant up
 
-run_all add-apt-repository ppa:saltstack/salt
-run_all apt-get update
+# Install salt via the PPA
+run_all sudo add-apt-repository ppa:saltstack/salt
+run_all sudo apt-get update
+run_master sudo apt-get -y install salt-master
+run_all sudo apt-get -y install salt-minion
 
-run_all apt-get -y install salt-minion
-run_master apt-get -y install salt-master
+# Install salt via the bootstrap script
+#run_all curl -L https://bootstrap.saltstack.com -o install_salt.sh
+#run_master sudo sh install_salt.sh -P -M
+#run_minions sudo sh install_salt.sh -P
 
 # Give some time for the minions to connect with the salt master
 sleep 5
 
-run_master salt-key -Ay
-
-run_master salt "*" test.ping
+run_master sudo salt-key -Ay
